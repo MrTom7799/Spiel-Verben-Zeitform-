@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Zeitenmeister – Verbtrainer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f7f7f7;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    #game {
+      max-width: 700px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 6px;
+    }
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 4px;
+    }
+    #result {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <div id="game">
+    <h1>Zeitenmeister – Verben konjugieren</h1>
+    <p id="verb"></p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Person</th>
+          <th>Präsens</th>
+          <th>Präteritum</th>
+          <th>Perfekt</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+
+    <button onclick="checkAnswers()">Überprüfen</button>
+    <button onclick="nextVerb()">Nächstes Verb</button>
+
+    <p id="result"></p>
+  </div>
+
+  <script>
+    // Beispiel-Datenbank: Liste mit regelmäßigen & unregelmäßigen Verben
+    const verbs = {
+      "machen": {
+        "ich":     ["mache", "machte", "habe gemacht"],
+        "du":      ["machst", "machtest", "hast gemacht"],
+        "er/sie/es":["macht", "machte", "hat gemacht"],
+        "wir":     ["machen", "machten", "haben gemacht"],
+        "ihr":     ["macht", "machtet", "habt gemacht"],
+        "sie/Sie": ["machen", "machten", "haben gemacht"]
+      },
+      "gehen": {
+        "ich":     ["gehe", "ging", "bin gegangen"],
+        "du":      ["gehst", "gingst", "bist gegangen"],
+        "er/sie/es":["geht", "ging", "ist gegangen"],
+        "wir":     ["gehen", "gingen", "sind gegangen"],
+        "ihr":     ["geht", "gingt", "seid gegangen"],
+        "sie/Sie": ["gehen", "gingen", "sind gegangen"]
+      },
+      "sehen": {
+        "ich": ["sehe","sah","habe gesehen"],
+        "du": ["siehst","sahst","hast gesehen"],
+        "er/sie/es":["sieht","sah","hat gesehen"],
+        "wir":["sehen","sahen","haben gesehen"],
+        "ihr":["seht","saht","habt gesehen"],
+        "sie/Sie":["sehen","sahen","haben gesehen"]
+      }
+    };
+
+    let currentVerb;
+    const persons = ["ich","du","er/sie/es","wir","ihr","sie/Sie"];
+
+    function startGame() {
+      nextVerb();
+    }
+
+    function nextVerb(){
+      // Zufälliges Verb auswählen
+      const keys = Object.keys(verbs);
+      currentVerb = keys[Math.floor(Math.random() * keys.length)];
+
+      // Verb im Kopf anzeigen
+      document.getElementById("verb").textContent = "Konjugiere das Verb: " + currentVerb;
+
+      // Tabelle füllen
+      const tbody = document.getElementById("table-body");
+      tbody.innerHTML = "";
+      persons.forEach(p=>{
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${p}</td>
+          <td><input type="text" data-key="${p}-0"></td>
+          <td><input type="text" data-key="${p}-1"></td>
+          <td><input type="text" data-key="${p}-2"></td>
+        `;
+        tbody.appendChild(row);
+      });
+      document.getElementById("result").textContent = "";
+    }
+
+    function checkAnswers(){
+      let correct = 0;
+      let total = persons.length * 3;
+      persons.forEach((p)=>{
+        const forms = verbs[currentVerb][p];
+        forms.forEach((solution, i)=>{
+          const field = document.querySelector(`input[data-key='${p}-${i}']`);
+          if(field.value.trim().toLowerCase() === solution.toLowerCase()){
+            field.style.background = "#c8e6c9"; // grün
+            correct++;
+          } else {
+            field.style.background = "#ffcdd2"; // rot
+            field.placeholder = solution;
+          }
+        });
+      });
+      document.getElementById("result").textContent = 
+        `Richtig: ${correct} von ${total}`;
+    }
+
+    window.onload = startGame;
+  </script>
+</body>
+</html>
